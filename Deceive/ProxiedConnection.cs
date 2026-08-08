@@ -211,9 +211,9 @@ internal class ProxiedConnection
                             await SendFakePlayerPresenceAsync();
                     }
                 }
-
-                // Remove VALORANT presence
-                presence.Element("games")?.Element("valorant")?.Remove();
+                
+                // keep user title and banner in lobby
+                PresenceScrub.ScrubValorantPresence(presence);
             }
 
             var sb = new StringBuilder();
