@@ -16,6 +16,8 @@ namespace Deceive;
 
 internal class MainController : ApplicationContext
 {
+    private const string ValorantLobbyStatusLabel = "Offline with VALORANT Lobby Info (LoR Away)";
+
     internal MainController()
     {
         TrayIcon = new NotifyIcon
@@ -43,6 +45,7 @@ internal class MainController : ApplicationContext
     private ToolStripMenuItem ChatStatus { get; set; } = null!;
     private ToolStripMenuItem OfflineStatus { get; set; } = null!;
     private ToolStripMenuItem MobileStatus { get; set; } = null!;
+    private ToolStripMenuItem ValorantLobbyStatus { get; set; } = null!;
 
     private List<ProxiedConnection> Connections { get; } = new();
 
@@ -168,7 +171,15 @@ internal class MainController : ApplicationContext
         })
         { Checked = Status.Equals("mobile") };
 
-        var typeMenuItem = new ToolStripMenuItem("Status Type", null, ChatStatus, OfflineStatus, MobileStatus);
+        ValorantLobbyStatus = new ToolStripMenuItem(ValorantLobbyStatusLabel, null, async (_, _) =>
+        {
+            await UpdateStatusAsync(Status = ProxiedConnection.ValorantLobbyStatus);
+            Enabled = true;
+            UpdateTray();
+        })
+        { Checked = Status.Equals(ProxiedConnection.ValorantLobbyStatus) };
+
+        var typeMenuItem = new ToolStripMenuItem("Status Type", null, ChatStatus, OfflineStatus, MobileStatus, ValorantLobbyStatus);
         
         var currentStartup = Persistence.GetStartupStatus();
         var startupOnline = new ToolStripMenuItem("Online", null, (_, _) =>
@@ -192,6 +203,13 @@ internal class MainController : ApplicationContext
         })
         { Checked = currentStartup == "mobile" };
 
+        var startupValorantLobby = new ToolStripMenuItem(ValorantLobbyStatusLabel, null, (_, _) =>
+        {
+            Persistence.SetStartupStatus(ProxiedConnection.ValorantLobbyStatus);
+            UpdateTray();
+        })
+        { Checked = currentStartup == ProxiedConnection.ValorantLobbyStatus };
+
         var startupLast = new ToolStripMenuItem("Remember Last", null, (_, _) =>
         {
             Persistence.SetStartupStatus("last");
@@ -199,7 +217,7 @@ internal class MainController : ApplicationContext
         })
         { Checked = currentStartup == "last" };
 
-        var startupStatusMenuItem = new ToolStripMenuItem("Default Status on Startup", null, startupOnline, startupOffline, startupMobile, startupLast);
+        var startupStatusMenuItem = new ToolStripMenuItem("Default Status on Startup", null, startupOnline, startupOffline, startupMobile, startupValorantLobby, startupLast);
 
         var restartWithDifferentGameItem = new ToolStripMenuItem("Restart and launch a different game", null, (_, _) =>
         {
@@ -290,10 +308,7 @@ internal class MainController : ApplicationContext
         }
         else if (content.ToLower().Contains("status"))
         {
-            if (Status == "chat")
-                await SendMessageFromFakePlayerAsync("You are appearing online.");
-            else
-                await SendMessageFromFakePlayerAsync("You are appearing " + Status + ".");
+            await SendMessageFromFakePlayerAsync("You are appearing " + DescribeStatus(Status) + ".");
         }
         else if (content.ToLower().Contains("help"))
         {
@@ -304,8 +319,11 @@ internal class MainController : ApplicationContext
     private async Task SendIntroductionTextAsync()
     {
         Persistence.SetHasShownIntroduction();
-        await SendMessageFromFakePlayerAsync("Welcome! Deceive is running and you are currently appearing " + Status +
-                                             ". Despite what the game client may indicate, you are appearing offline to your friends unless you manually disable Deceive.");
+        var statusExplanation = Status == ProxiedConnection.ValorantLobbyStatus
+            ? "VALORANT lobby information remains visible, while Riot Client shows mock Legends of Runeterra away presence."
+            : "Despite what the game client may indicate, you are appearing offline to your friends unless you manually disable Deceive.";
+        await SendMessageFromFakePlayerAsync("Welcome! Deceive is running and you are currently appearing " +
+                                             DescribeStatus(Status) + ". " + statusExplanation);
         await Task.Delay(200);
         await SendMessageFromFakePlayerAsync(
             "If you want to invite others while being offline, you may need to disable Deceive for them to accept. You can enable Deceive again as soon as they are in your lobby.");
@@ -326,17 +344,15 @@ internal class MainController : ApplicationContext
         foreach (var connection in Connections)
             await connection.UpdateStatusAsync(newStatus);
 
-        if (newStatus == "chat")
-            await SendMessageFromFakePlayerAsync("You are now appearing online.");
-        else
-            await SendMessageFromFakePlayerAsync("You are now appearing " + newStatus + ".");
+        await SendMessageFromFakePlayerAsync("You are now appearing " + DescribeStatus(newStatus) + ".");
     }
 
     private void LoadStatus()
     {
         var startupStatus = Persistence.GetStartupStatus();
 
-        if (startupStatus is "chat" or "offline" or "mobile")
+        if (startupStatus is "chat" or "offline" or "mobile" ||
+            startupStatus == ProxiedConnection.ValorantLobbyStatus)
         {
             Status = startupStatus;
             return;
@@ -354,9 +370,17 @@ internal class MainController : ApplicationContext
         {
             "chat" => "chat",
             "mobile" => "mobile",
+            ProxiedConnection.ValorantLobbyStatus => ProxiedConnection.ValorantLobbyStatus,
             _ => "offline"
         };
     }
+
+    private static string DescribeStatus(string status) => status switch
+    {
+        "chat" => "online",
+        ProxiedConnection.ValorantLobbyStatus => "offline with VALORANT lobby info (mock LoR away)",
+        _ => status
+    };
 
     private async Task ShutdownIfNoReconnect()
     {

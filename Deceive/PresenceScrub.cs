@@ -10,10 +10,26 @@ static class PresenceScrub
 {
     public static void ScrubValorantPresence(XElement presence)
     {
-        var valorantNode = presence.Element("games")?.Element("valorant");
+        var gamesNode = presence.Element("games");
+        var valorantNode = gamesNode?.Element("valorant");
         if (valorantNode == null) return;
 
+        // VALORANT needs an active product status to render the player card in a
+        // party. The separate party/activity payload is not needed for that.
+        valorantNode.Element("pd")?.Remove();
+        // Away is the least-visible tested status that still renders the lobby card.
+        valorantNode.SetElementValue("st", "away");
         ScrubBase64Element(valorantNode, "p", RebuildP);
+
+        // Riot Client selects the newer product presence, masking VALORANT as
+        // Legends of Runeterra away while VALORANT still reads its lobby data.
+        var timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        gamesNode!.Add(
+            new XElement("bacon",
+                new XElement("st", "away"),
+                new XElement("s.t", timestamp),
+                new XElement("s.p", "bacon"),
+                new XElement("pty")));
         // Do NOT remove valorantNode anymore.
     }
 

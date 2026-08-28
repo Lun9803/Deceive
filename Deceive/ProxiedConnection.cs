@@ -13,6 +13,8 @@ namespace Deceive;
 
 internal class ProxiedConnection
 {
+    internal const string ValorantLobbyStatus = "valorant_lobby";
+
     private MainController MainController { get; set; }
 
     private SslStream Incoming { get; set; } = null!;
@@ -160,11 +162,15 @@ internal class ProxiedConnection
                     presence.Remove();
                 }
 
-                if (targetStatus != "chat" ||
+                // The lobby-compatible mode is globally offline, but retains a
+                // deliberately limited VALORANT presence below.
+                var xmppStatus = targetStatus == ValorantLobbyStatus ? "offline" : targetStatus;
+
+                if (xmppStatus != "chat" ||
                     presence.Element("games")?.Element("league_of_legends")?.Element("st")?.Value != "dnd")
                 {
-                    presence.Element("show")?.ReplaceNodes(targetStatus);
-                    presence.Element("games")?.Element("league_of_legends")?.Element("st")?.ReplaceNodes(targetStatus);
+                    presence.Element("show")?.ReplaceNodes(xmppStatus);
+                    presence.Element("games")?.Element("league_of_legends")?.Element("st")?.ReplaceNodes(xmppStatus);
                 }
 
                 if (targetStatus == "chat")
@@ -212,8 +218,17 @@ internal class ProxiedConnection
                     }
                 }
                 
-                // keep user title and banner in lobby
-                PresenceScrub.ScrubValorantPresence(presence);
+                if (targetStatus == ValorantLobbyStatus)
+                {
+                    // Retain only enough VALORANT presence to render lobby info,
+                    // then mask it in Riot Client with mock Runeterra away presence.
+                    PresenceScrub.ScrubValorantPresence(presence);
+                }
+                else
+                {
+                    // Standard offline/mobile behavior: publish no VALORANT presence.
+                    presence.Element("games")?.Element("valorant")?.Remove();
+                }
             }
 
             var sb = new StringBuilder();

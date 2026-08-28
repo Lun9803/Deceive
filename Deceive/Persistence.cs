@@ -60,7 +60,7 @@ internal static class Persistence
     
     internal static void SetCachedCertificate(byte[] certBytes) => File.WriteAllBytes(CachedCertPath, certBytes);
     
-    // Startup status: "chat", "offline", "mobile", or "last" (remember last session).
+    // Startup status: "chat", "offline", "mobile", "valorant_lobby", or "last" (remember last session).
     internal static string GetStartupStatus() => File.Exists(StartupStatusPath) ? File.ReadAllText(StartupStatusPath) : "last";
     internal static void SetStartupStatus(string status) => File.WriteAllText(StartupStatusPath, status);
 
