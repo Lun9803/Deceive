@@ -131,6 +131,7 @@ internal static class StartupHandler
         var launchProduct = game switch
         {
             LaunchGame.LoL => "league_of_legends",
+            LaunchGame.TeamfightTactics => "teamfighttactics",
             LaunchGame.LoR => "bacon",
             LaunchGame.VALORANT => "valorant",
             LaunchGame.Lion => "lion",
@@ -162,7 +163,7 @@ internal static class StartupHandler
         var startArgs = new ProcessStartInfo { FileName = riotClientPath, Arguments = $"--client-config-url=\"http://127.0.0.1:{proxyServer.ConfigPort}\"" };
 
         if (launchProduct is not null)
-            startArgs.Arguments += $" --launch-product={launchProduct} --launch-patchline={gamePatchline}";
+            startArgs.Arguments += $" --launch-product={launchProduct} --launch-patchline={gamePatchline} --allow-direct-launch";
 
         if (riotClientParams is not null)
             startArgs.Arguments += $" {riotClientParams}";

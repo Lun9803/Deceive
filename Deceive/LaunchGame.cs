@@ -11,6 +11,11 @@ public enum LaunchGame
     LoL,
 
     /// <summary>
+    ///     Attempt to start Teamfight Tactics.
+    /// </summary>
+    TeamfightTactics,
+
+    /// <summary>
     ///     Attempt to start Legends of Runeterra.
     /// </summary>
     LoR,
