@@ -36,3 +36,6 @@ Deceive works by sitting between the Riot Client and the chat servers. To do tha
 ### I'm more of a visual learner. Do you have a video?
 Sure thing! Just click the preview below:  
 [![Youtube Preview](http://img.youtube.com/vi/bfsbtd39GqE/maxresdefault.jpg)](https://youtu.be/bfsbtd39GqE)
+
+### how to build
+`dotnet publish  -c Release`
