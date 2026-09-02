@@ -36,6 +36,7 @@
             this.buttonLaunchRiotClient = new System.Windows.Forms.Button();
             this.checkboxRemember = new System.Windows.Forms.CheckBox();
             this.buttonLaunchLion = new System.Windows.Forms.Button();
+            this.buttonLaunchTFT = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -85,7 +86,7 @@
             // 
             this.buttonLaunchRiotClient.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("buttonLaunchRiotClient.BackgroundImage")));
             this.buttonLaunchRiotClient.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.buttonLaunchRiotClient.Location = new System.Drawing.Point(10, 223);
+            this.buttonLaunchRiotClient.Location = new System.Drawing.Point(237, 224);
             this.buttonLaunchRiotClient.Name = "buttonLaunchRiotClient";
             this.buttonLaunchRiotClient.Size = new System.Drawing.Size(221, 91);
             this.buttonLaunchRiotClient.TabIndex = 4;
@@ -114,11 +115,23 @@
             this.buttonLaunchLion.UseVisualStyleBackColor = true;
             this.buttonLaunchLion.Click += new System.EventHandler(this.OnLionLaunch);
             // 
+            // buttonLaunchTFT
+            // 
+            this.buttonLaunchTFT.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("buttonLaunchTFT.BackgroundImage")));
+            this.buttonLaunchTFT.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.buttonLaunchTFT.Location = new System.Drawing.Point(10, 224);
+            this.buttonLaunchTFT.Name = "buttonLaunchTFT";
+            this.buttonLaunchTFT.Size = new System.Drawing.Size(221, 91);
+            this.buttonLaunchTFT.TabIndex = 7;
+            this.buttonLaunchTFT.UseVisualStyleBackColor = true;
+            this.buttonLaunchTFT.Click += new System.EventHandler(this.OnTFTLaunch);
+            // 
             // GamePromptForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(472, 351);
+            this.Controls.Add(this.buttonLaunchTFT);
             this.Controls.Add(this.buttonLaunchLion);
             this.Controls.Add(this.checkboxRemember);
             this.Controls.Add(this.buttonLaunchRiotClient);
@@ -144,5 +157,6 @@
         private System.Windows.Forms.Button buttonLaunchRiotClient;
         private System.Windows.Forms.CheckBox checkboxRemember;
         private System.Windows.Forms.Button buttonLaunchLion;
+        private System.Windows.Forms.Button buttonLaunchTFT;
     }
 }
